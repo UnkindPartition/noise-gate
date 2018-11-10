@@ -115,7 +115,7 @@ CMT_Descriptor(unsigned long                       lUniqueID,
   deactivate = fDeactivate;
   cleanup = CMT_Cleanup;
 
-};
+}
 
 /*****************************************************************************/
 
