@@ -29,10 +29,7 @@
 
 #include "cmt.h"
 
-/*****************************************************************************/
-
-void initialise_modules();
-void finalise_modules();
+void init_noise_gate();
 
 /*****************************************************************************/
 
@@ -92,7 +89,7 @@ class StartupShutdownHandler {
 public:
 
   StartupShutdownHandler() {
-    initialise_modules();
+    init_noise_gate();
     qsort(g_ppsRegisteredDescriptors, 
 	  g_lPluginCount,
 	  sizeof(CMT_Descriptor_ptr),
@@ -105,7 +102,7 @@ public:
 	delete g_ppsRegisteredDescriptors[lIndex];
       delete [] g_ppsRegisteredDescriptors;
     }
-    finalise_modules();
+    // finalise_modules();
   }
 
 } g_oStartupShutdownHandler;
