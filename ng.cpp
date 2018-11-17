@@ -31,6 +31,9 @@ class MaxWindow {
       while (!indices.empty() && get_sample(indices.back()) <= sample) {
         indices.pop_back();
       }
+      while (!indices.empty() && indices.front() <= n_samples - window_size) {
+        indices.pop_front();
+      }
       indices.push_back(n_samples++);
       buf.push_back(sample);
     }
