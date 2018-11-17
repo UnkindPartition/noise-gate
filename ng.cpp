@@ -167,7 +167,7 @@ public:
 
     if (ns_window == nullptr) {
       ns_window = make_unique<NonSilenceWindow>(window_samples,
-                                                 sample_rate/100,
+                                                 sample_rate * 5e-3,
                                                  sample_rate,
                                                  threshold);
     }
