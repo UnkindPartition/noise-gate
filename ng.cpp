@@ -1,28 +1,41 @@
 #include <ladspa.h>
 #include "cmt.h"
 #include <cmath>
+#include <deque>
 #include <boost/circular_buffer.hpp>
 
 using namespace std;
 
-// A sliding window that maintains its power (i.e. RMS^2)
-class PowerWindow {
+// A sliding window that maintains its maximum absolute value
+class MaxWindow {
   private:
-    // buf contains squared samples
+    // Window size.
+    deque<LADSPA_Data>::size_type window_size;
+    // Samples within the window.
     boost::circular_buffer<LADSPA_Data> buf;
-    LADSPA_Data energy {0};
-  public:
-    PowerWindow(boost::circular_buffer<LADSPA_Data>::capacity_type window_size)
-      : buf(window_size) {};
-    void push(LADSPA_Data sample) {
-      if (buf.full())
-        energy -= buf.front();
-      LADSPA_Data sample_sq = sample*sample;
-      buf.push_back(sample_sq);
-      energy += sample_sq;
+    // Indinces into the whole track (not buf!), corresponding to the decreasing
+    // subsequence of samples within the current window.
+    deque<unsigned long> indices;
+    // Total cumulative number of samples pushed into this window.
+    // Used to convert 'indices' to actual buf indices.
+    unsigned long n_samples {0};
+    // Get sample value by its absolute index.
+    inline LADSPA_Data get_sample(unsigned long index) const {
+      return buf[buf.size() - (n_samples - index)];
     }
-    LADSPA_Data power() const {
-      return energy / buf.size();
+  public:
+    MaxWindow(deque<LADSPA_Data>::size_type window_size)
+      : window_size(window_size), buf(window_size) {};
+    void push(LADSPA_Data sample) {
+      sample = abs(sample);
+      while (!indices.empty() && get_sample(indices.back()) <= sample) {
+        indices.pop_back();
+      }
+      indices.push_back(n_samples++);
+      buf.push_back(sample);
+    }
+    LADSPA_Data level() const {
+      return get_sample(indices.front());
     }
 };
 
@@ -32,23 +45,23 @@ class PowerWindow {
 class NonSilenceWindow {
   private:
     boost::circular_buffer<bool> buf; // true == non-silent
-    PowerWindow power_window;
+    MaxWindow max_window;
     LADSPA_Data sample_rate;
-    LADSPA_Data power_threshold; // a power threshold above which the sound is considered non-silent
+    LADSPA_Data level_threshold; // a threshold above which the sound is considered non-silent
     unsigned long nonsilent_samples {0};
   public:
     NonSilenceWindow(boost::circular_buffer<LADSPA_Data>::capacity_type ns_window_size,
-                     boost::circular_buffer<LADSPA_Data>::capacity_type pw_window_size,
+                     boost::circular_buffer<LADSPA_Data>::capacity_type max_window_size,
                      LADSPA_Data sample_rate,
-                     LADSPA_Data power_threshold)
-      : buf(ns_window_size), power_window(pw_window_size),
-        sample_rate(sample_rate), power_threshold(power_threshold)
+                     LADSPA_Data level_threshold)
+      : buf(ns_window_size), max_window(max_window_size),
+        sample_rate(sample_rate), level_threshold(level_threshold)
       {};
     void push(LADSPA_Data sample) {
-      power_window.push(sample);
+      max_window.push(sample);
       if (buf.full())
         nonsilent_samples -= buf.front();
-      bool new_nonsilent = power_window.power() >= power_threshold;
+      bool new_nonsilent = max_window.level() >= level_threshold;
       buf.push_back(new_nonsilent);
       nonsilent_samples += new_nonsilent;
     }
@@ -135,7 +148,7 @@ public:
 
   void run(unsigned long n_samples) {
 
-    LADSPA_Data threshold     = pow(10.f, *(m_ppfPorts[0]) / 10);
+    LADSPA_Data threshold     = pow(10.f, *(m_ppfPorts[0]) / 20.f);
     LADSPA_Data window_size   = *(m_ppfPorts[1]) / 1000; // in seconds
     LADSPA_Data min_nonsilent = *(m_ppfPorts[2]) / 1000; // in seconds
     LADSPA_Data attack        = *(m_ppfPorts[3]) / 1000; // in seconds
