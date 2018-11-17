@@ -205,16 +205,24 @@ void init_noise_gate() {
      );
   desc->addPort
     (LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL,
-     "Threshold (dB)");
+     "Threshold (dB)",
+     LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE,
+     -80, 0);
   desc->addPort
     (LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL,
-     "Window size (ms)");
+     "Window size (ms)",
+     LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE,
+     100, 1000);
   desc->addPort
     (LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL,
-     "Minimum total duration of non-silent audio per window for the gate to be open");
+     "Non-silent audio per window (ms)",
+     LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE,
+     50, 500);
   desc->addPort
     (LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL,
-     "Attack/decay (ms)");
+     "Attack/decay (ms)",
+     LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE,
+     10, 200);
   desc->addPort
     (LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO,
      "Input");
