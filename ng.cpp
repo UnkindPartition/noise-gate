@@ -22,7 +22,7 @@ class PowerWindow {
       energy += sample_sq;
     }
     LADSPA_Data power() const {
-      return sqrt(energy / buf.size());
+      return energy / buf.size();
     }
 };
 
@@ -45,10 +45,11 @@ class NonSilenceWindow {
         sample_rate(sample_rate), power_threshold(power_threshold)
       {};
     void push(LADSPA_Data sample) {
+      powerWindow.push(sample);
       if (buf.full())
         nonsilent_samples -= buf.front();
       bool new_nonsilent = powerWindow.power() >= power_threshold;
-      powerWindow.push(new_nonsilent);
+      buf.push_back(new_nonsilent);
       nonsilent_samples += new_nonsilent;
     }
     // Get the total amount of non-silence inside the window in seconds
