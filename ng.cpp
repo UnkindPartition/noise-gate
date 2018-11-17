@@ -32,7 +32,7 @@ class PowerWindow {
 class NonSilenceWindow {
   private:
     boost::circular_buffer<bool> buf; // true == non-silent
-    PowerWindow powerWindow;
+    PowerWindow power_window;
     LADSPA_Data sample_rate;
     LADSPA_Data power_threshold; // a power threshold above which the sound is considered non-silent
     unsigned long nonsilent_samples {0};
@@ -41,14 +41,14 @@ class NonSilenceWindow {
                      boost::circular_buffer<LADSPA_Data>::capacity_type pw_window_size,
                      LADSPA_Data sample_rate,
                      LADSPA_Data power_threshold)
-      : buf(ns_window_size), powerWindow(pw_window_size), 
+      : buf(ns_window_size), power_window(pw_window_size),
         sample_rate(sample_rate), power_threshold(power_threshold)
       {};
     void push(LADSPA_Data sample) {
-      powerWindow.push(sample);
+      power_window.push(sample);
       if (buf.full())
         nonsilent_samples -= buf.front();
-      bool new_nonsilent = powerWindow.power() >= power_threshold;
+      bool new_nonsilent = power_window.power() >= power_threshold;
       buf.push_back(new_nonsilent);
       nonsilent_samples += new_nonsilent;
     }
