@@ -147,7 +147,7 @@ public:
     unsigned window_samples = 2 * half_window_samples + 1;
     unsigned sm_window_size = attack * sample_rate;
     unsigned latency_samples = half_window_samples + sm_window_size;
-    *latency = latency_samples / sample_rate;
+    *latency = latency_samples;
 
     if (ns_window == nullptr) {
       ns_window = make_unique<NonSilenceWindow>(window_samples,
