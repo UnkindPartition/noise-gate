@@ -174,21 +174,18 @@ public:
     if (buf == nullptr) {
       buf = make_unique<boost::circular_buffer<LADSPA_Data>>(latency_samples);
     }
-    for (unsigned i = 0; i < half_window_samples; i++) {
-      ns_window->push(0);
-    }
     for (unsigned i = 0; i < n_samples; i++) {
-      ns_window->push(input[i]);
-      buf->push_back(input[i]);
-      if (i >= half_window_samples) {
-        sm_window->push(ns_window->nonsilent() >= min_nonsilent);
-      }
+      // save the sample so we don't lose it after writing to output[i]
+      LADSPA_Data sample = input[i];
+      ns_window->push(sample);
+      sm_window->push(ns_window->nonsilent() >= min_nonsilent);
       if (buf->full()) {
         output[i] = buf->front() * sm_window->scaling_factor();
       }
       else {
         output[i] = 0;
       }
+      buf->push_back(sample);
     }
   }
 
