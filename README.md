@@ -1,7 +1,7 @@
 This is a better noise gate for Audacity, Ardour, or any other editor/DAW that supports the
 [LADSPA](https://www.ladspa.org/) plugin interface.
 
-See <http://ro-che.info/articles/2019-01-12-better-noise-gate> for the
+See <https://ro-che.info/articles/2019-01-12-better-noise-gate> for the
 introduction.
 
 ## Installation
