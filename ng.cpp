@@ -231,7 +231,7 @@ void init_noise_gate() {
     (LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL,
      "Non-silent audio per window (ms)",
      LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE,
-     50, 500);
+     10, 500);
   desc->addPort
     (LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL,
      "Attack/decay (ms)",
