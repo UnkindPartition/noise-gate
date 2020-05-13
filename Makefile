@@ -1,3 +1,4 @@
+CXXFLAGS += -std=c++14
 ng.so: init.o ng.o cmt.o
 	$(CXX) -shared -o $@ $+
 %.o: %.cpp
