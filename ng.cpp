@@ -18,7 +18,7 @@ class MaxWindow {
     deque<unsigned long> indices;
     // Total cumulative number of samples pushed into this window.
     // Used to convert 'indices' to actual buf indices.
-    unsigned long n_samples {0};
+    unsigned long n_samples = 0;
     // Get sample value by its absolute index.
     inline LADSPA_Data get_sample(unsigned long index) const {
       return buf[buf.size() - (n_samples - index)];
@@ -51,7 +51,7 @@ class NonSilenceWindow {
     MaxWindow max_window;
     LADSPA_Data sample_rate;
     LADSPA_Data level_threshold; // a threshold above which the sound is considered non-silent
-    unsigned long nonsilent_samples {0};
+    unsigned long nonsilent_samples = 0;
   public:
     NonSilenceWindow(boost::circular_buffer<LADSPA_Data>::capacity_type ns_window_size,
                      boost::circular_buffer<LADSPA_Data>::capacity_type max_window_size,
@@ -94,7 +94,7 @@ class SmoothingWindow {
     // The current scaling factor applied to the sound samples.
     LADSPA_Data current_coef = 1;
     // Are we currently rising (true) or falling (false)?
-    bool rising {true};
+    bool rising = true;
     // The number of samples since we've last seen the gate open.
     // If it's more than the window size, we may begin to decrease the scaling
     // factor.
